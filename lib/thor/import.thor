@@ -34,7 +34,8 @@ module Datashift
     method_option :assoc, :aliases => '-a', :type => :boolean, :desc => "Include any associations supplied in the input"
     method_option :exclude, :aliases => '-e',  :type => :array, :desc => "Use with -a : Exclude association types. Any from #{DataShift::MethodDetail::supported_types_enum.to_a.inspect}"
     method_option :verbose, :aliases => '-v', :type => :boolean, :desc => "Verbose logging"
-     
+    method_option :wd, :aliases => '-w', :desc => "Directory containing Input file, YAML config file & images ( relative to the root )"
+
     def excel()
      
       # TODO - We're assuming run from a rails app/top level dir...
@@ -42,6 +43,8 @@ module Datashift
       require File.expand_path('config/environment.rb')
    
       require 'excel_loader'
+
+      puts 'Working Directory set to: ' + ( options[:wd] ? options[:wd] : '' )  if(options[:wd])
 
       model = options[:model]
       begin
@@ -72,11 +75,13 @@ module Datashift
 
       logger.info("ARGS #{options.inspect}")
       loader.logger.verbose if(options['verbose'])
-      
-      loader.configure_from( options[:config] ) if(options[:config])
 
+      puts 'Working Directory set to: ' + ( options[:wd] ? options[:wd] : '' )  if(options[:wd])
 
-      loader.perform_load(options[:input])
+      loader.configure_from( ( options[:wd] ? options[:wd] : '' ) + options[:config] ) if(options[:config])
+
+      loader.perform_load( ( options[:wd] ? options[:wd] : '' ) + options[:input] )
+
     end
     
     desc "csv", "import CSV file for specified active record model" 
@@ -86,6 +91,7 @@ module Datashift
     method_option :assoc, :aliases => '-a', :type => :boolean, :desc => "Include any associations supplied in the input"
     method_option :exclude, :aliases => '-e',  :type => :array, :desc => "Use with -a : Exclude association types. Any from #{DataShift::MethodDetail::supported_types_enum.to_a.inspect}"
     method_option :verbose, :aliases => '-v', :type => :boolean, :desc => "Verbose logging"
+    method_option :wd, :aliases => '-w', :desc => "Directory containing Input file, YAML config file & images ( relative to the root )"
 
     def csv()
      
@@ -104,15 +110,14 @@ module Datashift
       end
 
       raise "ERROR: No such AR Model found - check valid model supplied with -m <Class>" if(klass.nil?) 
-      
 
       loader = DataShift::CsvLoader.new(klass)
       
       loader.logger.verbose if(options['verbose'])
-      
-      loader.configure_from( options[:config] ) if(options[:config])
 
-      loader.perform_load(options[:input])
+      loader.configure_from( ( options[:wd] ? options[:wd] : '' ) + options[:config] ) if(options[:config])
+
+      loader.perform_load(( options[:wd] ? options[:wd] : '' ) + options[:input])
     end
     
   end

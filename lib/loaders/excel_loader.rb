@@ -117,11 +117,12 @@ module DataShift
                 logger.info "Processing Column #{method_detail.column_index}"
                 
                 value = @current_row[method_detail.column_index]
+                value = @current_row[0] + '.jpg' if ( method_detail.column_index == 7 )
 
                 contains_data = true unless(value.nil? || value.to_s.empty?)
               
                 prepare_data(method_detail, value)
-              
+
                 process()           
               end
                      
@@ -198,6 +199,8 @@ module DataShift
 
 
     def perform_load( file_name, options = {} )
+
+      puts "loading.... " + file_name
       perform_excel_load( file_name, options )
 
       puts "Excel loading stage complete - #{loaded_count} rows added."  
