@@ -95,9 +95,19 @@ module DataShift
             break if @current_row.nil?
             
             logger.info "Processing Row #{i} : #{@current_row}"
-            
+
+            image_file = @current_row[0] + '.jpg'
+            image_file = File.join(@options[:image_path_prefix], image_file) if(@options[:image_path_prefix])
+            unless File.exists? image_file
+              msg = "Skipping #{@current_row[0]}, image #{image_file} doesn't exist"
+              puts msg
+              logger.info msg
+              next
+            end
+
             contains_data = false
-            
+            stock_location_id = 3
+
             begin
               # First assign any default values for columns not included in parsed_file
               process_missing_columns_with_defaults
