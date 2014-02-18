@@ -83,7 +83,9 @@ module DataShift
        
           @sheet.each_with_index do |row, i|
             
-            @current_row = row 
+            @current_row = row
+            # XXX
+            @IMAGE_COL = 0
             
             next if(i == header_row_index)
           
@@ -95,11 +97,14 @@ module DataShift
             break if @current_row.nil?
             
             logger.info "Processing Row #{i} : #{@current_row}"
+            puts "Processing Row #{i} : #{@current_row}"
 
-            image_file = @current_row[0] + '.jpg'
+            sku = @current_row[@IMAGE_COL].to_s
+            ext = ".jpg"
+            image_file = sku + ext
             image_file = File.join(@options[:image_path_prefix], image_file) if(@options[:image_path_prefix])
             unless File.exists? image_file
-              msg = "Skipping #{@current_row[0]}, image #{image_file} doesn't exist"
+              msg = "Skipping #{@current_row[@IMAGE_COL]}, image #{image_file} doesn't exist"
               puts msg
               logger.info msg
               next
@@ -127,7 +132,7 @@ module DataShift
                 logger.info "Processing Column #{method_detail.column_index}"
                 
                 value = @current_row[method_detail.column_index]
-                value = @current_row[0] + '.jpg' if ( method_detail.column_index == 7 )
+                value = sku + ext if ( method_detail.column_index == 7 )
 
                 contains_data = true unless(value.nil? || value.to_s.empty?)
               
